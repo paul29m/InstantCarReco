@@ -1,0 +1,10 @@
+bmw 1 series convertible 2012
+bmw 1 series coupe 2012
+bmw 3 series sedan 2012
+bmw 3 series wagon 2012
+bmw 6 series convertible 2007
+bmw 5 series sedan 2012
+bmw m3 coupe 2012
+bmw m5 sedan 2010
+bmw m6 convertible 2010
+bmw x3 suv 2012
