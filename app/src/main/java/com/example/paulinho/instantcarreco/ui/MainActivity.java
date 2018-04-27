@@ -2,6 +2,8 @@
 
 package com.example.paulinho.instantcarreco.ui;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,10 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.paulinho.instantcarreco.R;
 import com.example.paulinho.instantcarreco.utils.Classifier;
 import com.example.paulinho.instantcarreco.utils.TensorFlowImageClassifier;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
@@ -43,14 +48,19 @@ public class MainActivity extends AppCompatActivity {
     private Classifier classifier;
     private Executor executor = Executors.newSingleThreadExecutor();
     private TextView textViewResult;
-    private Button btnDetectObject, btnToggleCamera;
+    private Button btnDetectObject, btnToggleCamera, btnSignOut;
     private ImageView imageViewResult;
     private CameraView cameraView;
+    private ProgressDialog progressDialog;
+
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        progressDialog = new ProgressDialog(this);
         cameraView = (CameraView) findViewById(R.id.cameraView);
         imageViewResult = (ImageView) findViewById(R.id.imageViewResult);
         textViewResult = (TextView) findViewById(R.id.textViewResult);
@@ -58,6 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
         btnToggleCamera = (Button) findViewById(R.id.btnToggleCamera);
         btnDetectObject = (Button) findViewById(R.id.btnDetectObject);
+        btnSignOut = (Button) findViewById(R.id.btnSignOut);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        checkIfLoggedIn();
 
         cameraView.addCameraKitListener(new CameraKitEventListener() {
             @Override
@@ -78,9 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, false);
 
                 imageViewResult.setImageBitmap(bitmap);
-
                 final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-
                 textViewResult.setText(results.toString());
 
             }
@@ -105,6 +117,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               logOut();
+            }
+        });
+
+    }
+
+    private void logOut() {
+        firebaseAuth.signOut();
+        finish();
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    private void checkIfLoggedIn() {
+        if(firebaseAuth.getCurrentUser() == null){
+            finish();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+        user = firebaseAuth.getCurrentUser();
+        Toast.makeText(this,"Welcome "+user.getEmail(),Toast.LENGTH_LONG).show();
         initTensorFlowAndLoadModel();
     }
 

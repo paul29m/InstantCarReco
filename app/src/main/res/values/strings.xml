@@ -2,4 +2,13 @@
     <string name="app_name">InstantCarReco</string>
     <string name="toggle_camera">Toggle Camera</string>
     <string name="detect_object">Detect Car</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="registered">Already Registered? Login here</string>
+    <string name="signup">Signup</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="welcome">Welcome to InstantCarReco</string>
+    <string name="login">Login</string>
+    <string name="new_account">Not have an account? Signup Here</string>
+    <string name="signout">SignOut</string>
 </resources>

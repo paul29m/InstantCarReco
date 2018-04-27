@@ -47,9 +47,28 @@
 
 
     <Button
+        android:id="@+id/btnDetectObject"
+        style="@android:style/Widget.Holo.Button.Small"
+        android:layout_width="96dp"
+        android:layout_height="45dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="232dp"
+        android:alpha="0.25"
+        android:background="@android:color/holo_blue_light"
+        android:elevation="0dp"
+        android:text="@string/detect_object"
+        android:textAllCaps="false"
+        android:textColor="@android:color/black"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
         android:id="@+id/btnToggleCamera"
-        android:layout_width="352dp"
-        android:layout_height="wrap_content"
+        android:layout_width="341dp"
+        android:layout_height="36dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
@@ -61,22 +80,17 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewResult" />
 
     <Button
-        android:id="@+id/btnDetectObject"
-        style="@android:style/Widget.Holo.Button.Small"
-        android:layout_width="96dp"
-        android:layout_height="45dp"
+        android:id="@+id/btnSignOut"
+        android:layout_width="136dp"
+        android:layout_height="37dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="232dp"
-        android:background="@android:color/holo_blue_light"
-        android:alpha="0.25"
-        android:elevation="0dp"
-        android:text="@string/detect_object"
+        android:layout_marginTop="8dp"
+        android:text="@string/signout"
         android:textAllCaps="false"
-        android:textColor="@android:color/black"
-        android:visibility="visible"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/btnToggleCamera" />
 
 </android.support.constraint.ConstraintLayout>

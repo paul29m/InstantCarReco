@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "620708794378",
+    "firebase_url": "https://instantcarreco.firebaseio.com",
+    "project_id": "instantcarreco",
+    "storage_bucket": "instantcarreco.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:620708794378:android:8113b0771b50e8d6",
+        "android_client_info": {
+          "package_name": "com.example.paulinho.instantcarreco"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "620708794378-uhmkk9oa05qk16g0fstlnh16ajki872u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.paulinho.instantcarreco",
+            "certificate_hash": "7642f148eb431c626c8dead7bfea499f352ee1d9"
+          }
+        },
+        {
+          "client_id": "620708794378-08lcen6c08iu1eglsbdb9igqiou4stpj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMQ3mhDDfwY8F5vEfAUO4SXRztjrWNz-U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "620708794378-08lcen6c08iu1eglsbdb9igqiou4stpj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
