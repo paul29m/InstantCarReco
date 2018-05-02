@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,7 +30,8 @@ import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
 import java.nio.ByteBuffer;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -40,6 +42,7 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 128;
     private static final float IMAGE_STD = 128;
@@ -97,19 +100,8 @@ public class MainActivity extends AppCompatActivity {
 
                 imageViewResult.setImageBitmap(bitmap);
                 final List<Recognition> results = classifier.recognizeImage(bitmap);
-
-
-                int size = bitmap.getRowBytes() * bitmap.getHeight();
-                ByteBuffer byteBuffer = ByteBuffer.allocate(size);
-                bitmap.copyPixelsToBuffer(byteBuffer);
-                byte[] byteArray = byteBuffer.array();
-                String carResult= "";
-                for (Recognition car:results) {
-                    List<String> elements = Collections.singletonList(car.getTitle());
-                    Car foundCar = new Car(elements.get(0),elements.get(2),"",elements.get(3),byteArray);
-                    carResult+=foundCar.toString();
-                }
-                textViewResult.setText(carResult);
+                List<Car> resultCarList = convertToCarList(results,bitmap);
+                textViewResult.setText(resultCarList.toString());
 
             }
 
@@ -142,6 +134,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private List<Car> convertToCarList(List<Recognition> results, Bitmap bitmap) {
+        Log.i(TAG,"Converting the result");
+        List<Car> result =new ArrayList<>();
+        int size = bitmap.getRowBytes() * bitmap.getHeight();
+        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+        bitmap.copyPixelsToBuffer(byteBuffer);
+        byte[] byteArray = byteBuffer.array();
+        for (Recognition car : results) {
+            List<String> elements = new ArrayList<>(Arrays.asList(car.getTitle().split(" ")));
+            StringBuilder model = new StringBuilder();
+            for(int i=1;i<elements.size()-1;i++) {
+                model.append(elements.get(i)).append(" ");
+            }
+            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1), "", model.toString(), byteArray);
+            result.add(foundCar);
+        }
+        return result;
+    }
+
     private void logOut() {
         firebaseAuth.signOut();
         finish();
@@ -153,9 +164,13 @@ public class MainActivity extends AppCompatActivity {
             finish();
             startActivity(new Intent(this, LoginActivity.class));
         }
-        user = firebaseAuth.getCurrentUser();
-        Toast.makeText(this,"Welcome "+user.getEmail(),Toast.LENGTH_LONG).show();
-        initTensorFlowAndLoadModel();
+        else{
+            user = firebaseAuth.getCurrentUser();
+            if (user.getEmail() != null) {
+                Toast.makeText(this,"Welcome "+user.getEmail(),Toast.LENGTH_LONG).show();
+            }
+            initTensorFlowAndLoadModel();
+        }
     }
 
     @Override

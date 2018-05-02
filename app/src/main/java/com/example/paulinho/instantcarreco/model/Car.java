@@ -18,7 +18,7 @@ public class Car {
         this.make = make;
         this.year = year;
         this.image = image;
-        this.id = ThreadLocalRandom.current().nextInt(1, 10^10 + 1);
+        this.id = ThreadLocalRandom.current().nextInt(1, 1000000+ 1);
         this.comment = comment;
         this.model = model;
     }
@@ -73,9 +73,9 @@ public class Car {
     @Override
     public String toString() {
         return "Car:" +
-                "Vehicle: " + make + '\n' +
-                "year: " + year + '\n' +
+                "Make: " + make + '\n' +
                 "model: " + model + '\n' +
+                "year: " + year + '\n' +
                 "comment: " + comment;
     }
 }
