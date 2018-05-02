@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.paulinho.instantcarreco.R;
+import com.example.paulinho.instantcarreco.model.Car;
+import com.example.paulinho.instantcarreco.model.Recognition;
 import com.example.paulinho.instantcarreco.utils.Classifier;
 import com.example.paulinho.instantcarreco.utils.TensorFlowImageClassifier;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +28,8 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
+import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -92,8 +96,20 @@ public class MainActivity extends AppCompatActivity {
                 bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, false);
 
                 imageViewResult.setImageBitmap(bitmap);
-                final List<Classifier.Recognition> results = classifier.recognizeImage(bitmap);
-                textViewResult.setText(results.toString());
+                final List<Recognition> results = classifier.recognizeImage(bitmap);
+
+
+                int size = bitmap.getRowBytes() * bitmap.getHeight();
+                ByteBuffer byteBuffer = ByteBuffer.allocate(size);
+                bitmap.copyPixelsToBuffer(byteBuffer);
+                byte[] byteArray = byteBuffer.array();
+                String carResult= "";
+                for (Recognition car:results) {
+                    List<String> elements = Collections.singletonList(car.getTitle());
+                    Car foundCar = new Car(elements.get(0),elements.get(2),"",elements.get(3),byteArray);
+                    carResult+=foundCar.toString();
+                }
+                textViewResult.setText(carResult);
 
             }
 
