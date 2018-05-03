@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,11 +16,15 @@ import android.widget.Toast;
 
 import com.example.paulinho.instantcarreco.R;
 import com.example.paulinho.instantcarreco.model.Car;
+import com.example.paulinho.instantcarreco.model.Owner;
 import com.example.paulinho.instantcarreco.model.Recognition;
+import com.example.paulinho.instantcarreco.utils.AppUtils;
 import com.example.paulinho.instantcarreco.utils.Classifier;
 import com.example.paulinho.instantcarreco.utils.TensorFlowImageClassifier;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
@@ -29,7 +32,6 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private CameraView cameraView;
     private ProgressDialog progressDialog;
 
+    DatabaseReference databaseCar;
+    DatabaseReference databaseOwner;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser user;
 
@@ -79,7 +83,8 @@ public class MainActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         checkIfLoggedIn();
-
+        databaseCar = FirebaseDatabase.getInstance().getReference("cars");
+        databaseOwner = FirebaseDatabase.getInstance().getReference("Owners");
         cameraView.addCameraKitListener(new CameraKitEventListener() {
             @Override
             public void onEvent(CameraKitEvent cameraKitEvent) {
@@ -101,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
                 imageViewResult.setImageBitmap(bitmap);
                 final List<Recognition> results = classifier.recognizeImage(bitmap);
                 List<Car> resultCarList = convertToCarList(results,bitmap);
+                addCarsToDB(resultCarList);
                 textViewResult.setText(resultCarList.toString());
 
             }
@@ -134,24 +140,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private List<Car> convertToCarList(List<Recognition> results, Bitmap bitmap) {
-        Log.i(TAG,"Converting the result");
-        List<Car> result =new ArrayList<>();
-        int size = bitmap.getRowBytes() * bitmap.getHeight();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(size);
-        bitmap.copyPixelsToBuffer(byteBuffer);
-        byte[] byteArray = byteBuffer.array();
-        for (Recognition car : results) {
-            List<String> elements = new ArrayList<>(Arrays.asList(car.getTitle().split(" ")));
-            StringBuilder model = new StringBuilder();
-            for(int i=1;i<elements.size()-1;i++) {
-                model.append(elements.get(i)).append(" ");
-            }
-            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1), "", model.toString(), byteArray);
-            result.add(foundCar);
+    private void addCarsToDB(List<Car> resultCarList) {
+        for(Car car:resultCarList){
+            String carId = databaseCar.push().getKey();
+            car.setId(carId);
+            String Id = databaseOwner.push().getKey();
+            databaseCar.child(carId).setValue(car);
+            databaseOwner.child(Id).setValue(new Owner(Id,user.getUid(),carId));
         }
-        return result;
+        Toast.makeText(this,"Car added",Toast.LENGTH_LONG).show();
     }
+
 
     private void logOut() {
         firebaseAuth.signOut();
@@ -160,16 +159,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkIfLoggedIn() {
-        if(firebaseAuth.getCurrentUser() == null){
-            finish();
-            startActivity(new Intent(this, LoginActivity.class));
-        }
-        else{
+        try{
             user = firebaseAuth.getCurrentUser();
             if (user.getEmail() != null) {
                 Toast.makeText(this,"Welcome "+user.getEmail(),Toast.LENGTH_LONG).show();
             }
             initTensorFlowAndLoadModel();
+        }catch (NullPointerException e){
+            finish();
+            startActivity(new Intent(this, LoginActivity.class));
         }
     }
 
@@ -195,7 +193,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    public static List<Car> convertToCarList(List<Recognition> results, Bitmap bitmap) {
+        List<Car> result =new ArrayList<>();
+        String image = AppUtils.encodeToBase64(bitmap);
+        for (Recognition car : results) {
+            List<String> elements = new ArrayList<>(Arrays.asList(car.getTitle().split(" ")));
+            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1), "No comments yet...",AppUtils.decodeModel(elements),image);
+            result.add(foundCar);
+        }
+        return result;
+    }
     private void initTensorFlowAndLoadModel() {
         executor.execute(new Runnable() {
             @Override

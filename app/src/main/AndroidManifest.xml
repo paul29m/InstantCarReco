@@ -3,6 +3,7 @@
     package="com.example.paulinho.instantcarreco">
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
+        android:name=".App"
         android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:icon="@mipmap/basic_car"
@@ -11,8 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.LoginActivity"
-            android:label="@string/title_activity_login">
+            android:name=".ui.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
