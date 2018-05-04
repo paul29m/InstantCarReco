@@ -117,11 +117,11 @@ public class Car {
     @Override
     public String toString() {
 
-        return "Car:" + '\n' +
+        return "Car " +
                 "Manufacture: " + manufacture + '\n' +
                 "model: " + model + '\n' +
-                "year: " + year + '\n' +
-                "date: " +getDateFormat()+ '\n' +
-                "comment: " + comment;
+                "year: " + year + '\n' ;
+//                "date: " +getDateFormat()+ '\n' +
+//                "comment: " + comment;
     }
 }

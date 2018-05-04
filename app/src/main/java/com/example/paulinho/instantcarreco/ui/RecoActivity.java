@@ -2,10 +2,16 @@
 
 package com.example.paulinho.instantcarreco.ui;
 
-import android.app.ProgressDialog;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -32,6 +38,8 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,14 +50,15 @@ import java.util.concurrent.Executors;
  * Created by paulinho on 4/15/2018.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class RecoActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "RecoActivity";
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 128;
     private static final float IMAGE_STD = 128;
     private static final String INPUT_NAME = "input";
     private static final String OUTPUT_NAME = "final_result";
+    private static final int REQUEST_CODE_GALLERY = 999;
 
     private static final String MODEL_FILE = "file:///android_asset/graph.pb";
     private static final String LABEL_FILE = "file:///android_asset/labels.txt";
@@ -57,10 +66,9 @@ public class MainActivity extends AppCompatActivity {
     private Classifier classifier;
     private Executor executor = Executors.newSingleThreadExecutor();
     private TextView textViewResult;
-    private Button btnDetectObject, btnToggleCamera, btnSignOut;
+    private Button btnDetectObject, btnList, btnSignOut, btnChoose;
     private ImageView imageViewResult;
     private CameraView cameraView;
-    private ProgressDialog progressDialog;
 
     DatabaseReference databaseCar;
     DatabaseReference databaseOwner;
@@ -70,21 +78,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        progressDialog = new ProgressDialog(this);
+        setContentView(R.layout.activity_reco);
         cameraView = (CameraView) findViewById(R.id.cameraView);
         imageViewResult = (ImageView) findViewById(R.id.imageViewResult);
         textViewResult = (TextView) findViewById(R.id.textViewResult);
         textViewResult.setMovementMethod(new ScrollingMovementMethod());
 
-        btnToggleCamera = (Button) findViewById(R.id.btnToggleCamera);
+        btnList = (Button) findViewById(R.id.btnList);
         btnDetectObject = (Button) findViewById(R.id.btnDetectObject);
         btnSignOut = (Button) findViewById(R.id.btnSignOut);
+        btnChoose = (Button) findViewById(R.id.btnChoose); 
 
         firebaseAuth = FirebaseAuth.getInstance();
         checkIfLoggedIn();
         databaseCar = FirebaseDatabase.getInstance().getReference("cars");
+        databaseCar.keepSynced(true);
         databaseOwner = FirebaseDatabase.getInstance().getReference("Owners");
+        databaseOwner.keepSynced(true);
+
+        cameraView.setCropOutput(true);
         cameraView.addCameraKitListener(new CameraKitEventListener() {
             @Override
             public void onEvent(CameraKitEvent cameraKitEvent) {
@@ -98,16 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onImage(CameraKitImage cameraKitImage) {
-
-                Bitmap bitmap = cameraKitImage.getBitmap();
-
-                bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, false);
-
-                imageViewResult.setImageBitmap(bitmap);
-                final List<Recognition> results = classifier.recognizeImage(bitmap);
-                List<Car> resultCarList = convertToCarList(results,bitmap);
-                addCarsToDB(resultCarList);
-                textViewResult.setText(resultCarList.toString());
+                recognizeImg(cameraKitImage.getBitmap());
 
             }
 
@@ -117,10 +120,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnToggleCamera.setOnClickListener(new View.OnClickListener() {
+        btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cameraView.toggleFacing();
+               //TODO
             }
         });
 
@@ -137,7 +140,27 @@ public class MainActivity extends AppCompatActivity {
                logOut();
             }
         });
+        
+        btnChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ActivityCompat.requestPermissions(
+                        RecoActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_CODE_GALLERY
+                );
+            }
+        });
 
+    }
+
+    private void recognizeImg(Bitmap bitmap) {
+        bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, false);
+        imageViewResult.setImageBitmap(bitmap);
+        final List<Recognition> results = classifier.recognizeImage(bitmap);
+        List<Car> resultCarList = convertToCarList(results,bitmap);
+        addCarsToDB(resultCarList);
+        textViewResult.setText(resultCarList.toString());
     }
 
     private void addCarsToDB(List<Car> resultCarList) {
@@ -193,6 +216,43 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if(requestCode == REQUEST_CODE_GALLERY){
+            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                startActivityForResult(intent, REQUEST_CODE_GALLERY);
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "You don't have permission to access file location!", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(uri);
+
+                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                recognizeImg(bitmap);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static List<Car> convertToCarList(List<Recognition> results, Bitmap bitmap) {
         List<Car> result =new ArrayList<>();
         String image = AppUtils.encodeToBase64(bitmap);

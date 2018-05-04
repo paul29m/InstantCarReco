@@ -5,16 +5,19 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.paulinho.instantcarreco.ui.MainActivity">
+    tools:context="com.example.paulinho.instantcarreco.ui.RecoActivity">
+
 
     <com.wonderkiln.camerakit.CameraView
         android:id="@+id/cameraView"
         android:layout_width="0dp"
-        android:layout_height="279dp"
+        android:layout_height="303dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,9 +28,11 @@
         android:layout_height="119dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/result"
         android:padding="2dp"
         app:layout_constraintEnd_toStartOf="@+id/textViewResult"
+        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cameraView" />
 
@@ -35,8 +40,8 @@
         android:id="@+id/textViewResult"
         android:layout_width="257dp"
         android:layout_height="120dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="20dp"
         android:fadeScrollbars="false"
         android:gravity="center"
         android:maxLines="15"
@@ -51,9 +56,10 @@
         style="@android:style/Widget.Holo.Button.Small"
         android:layout_width="96dp"
         android:layout_height="45dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="232dp"
+        android:layout_marginTop="8dp"
         android:alpha="0.25"
         android:background="@android:color/holo_blue_light"
         android:elevation="0dp"
@@ -61,36 +67,62 @@
         android:textAllCaps="false"
         android:textColor="@android:color/black"
         android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/cameraView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/cameraView"
+        app:layout_constraintVertical_bias="0.966" />
 
     <Button
-        android:id="@+id/btnToggleCamera"
-        android:layout_width="341dp"
-        android:layout_height="36dp"
+        android:id="@+id/btnList"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/toggle_camera"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/car_list"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimaryDark"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewResult" />
+        app:layout_constraintStart_toEndOf="@+id/btnChoose"
+        app:layout_constraintTop_toBottomOf="@+id/textViewResult"
+        app:layout_constraintVertical_bias="0.777" />
 
     <Button
         android:id="@+id/btnSignOut"
-        android:layout_width="136dp"
-        android:layout_height="37dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="@string/signout"
+        android:text="@string/logou"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimaryDark"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnChoose"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnToggleCamera" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewResult"
+        app:layout_constraintVertical_bias="0.777" />
+    <Button
+        android:id="@+id/btnChoose"
+        android:layout_width="67dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/choose"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="8sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnSignOut"
+        app:layout_constraintTop_toBottomOf="@+id/textViewResult"
+        app:layout_constraintVertical_bias="0.75" />
+
 
 </android.support.constraint.ConstraintLayout>
