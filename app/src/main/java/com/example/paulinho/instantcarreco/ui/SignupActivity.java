@@ -19,9 +19,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SignupActivity extends AppCompatActivity implements View.OnClickListener{
-    private EditText editTextEmail;
-    private EditText editTextPassword;
-    private Button buttonSignup;
+    private EditText editTextEmail, editTextPassword, editTextUser;
+    private Button buttonSignUp;
 
     private TextView textViewSignin;
     private ProgressDialog progressDialog;
@@ -40,20 +39,26 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
         }
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        editTextUser =(EditText) findViewById(R.id.editTextUser);
         textViewSignin = (TextView) findViewById(R.id.textViewSignin);
 
-        buttonSignup = (Button) findViewById(R.id.buttonSignup);
+        buttonSignUp = (Button) findViewById(R.id.buttonSignup);
 
         progressDialog = new ProgressDialog(this);
-        buttonSignup.setOnClickListener(this);
+        buttonSignUp.setOnClickListener(this);
         textViewSignin.setOnClickListener(this);
     }
 
     private void registerUser(){
         String email = editTextEmail.getText().toString().trim();
         String password  = editTextPassword.getText().toString().trim();
+        String user = editTextUser.getText().toString().trim();
+        if(TextUtils.isEmpty(user)){
+            Toast.makeText(this,"Please enter your name",Toast.LENGTH_LONG).show();
+            return;
+        }
 
-        if(TextUtils.isEmpty(email) ){
+        if(TextUtils.isEmpty(email) && !email.contains("@")  ){
             Toast.makeText(this,"Please enter email",Toast.LENGTH_LONG).show();
             return;
         }
@@ -85,7 +90,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
 
-        if(view == buttonSignup){
+        if(view == buttonSignUp){
             registerUser();
         }
 

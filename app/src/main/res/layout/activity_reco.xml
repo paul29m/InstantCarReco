@@ -10,8 +10,8 @@
 
     <com.wonderkiln.camerakit.CameraView
         android:id="@+id/cameraView"
-        android:layout_width="0dp"
-        android:layout_height="303dp"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -24,23 +24,24 @@
 
     <ImageView
         android:id="@+id/imageViewResult"
-        android:layout_width="95dp"
-        android:layout_height="119dp"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="20dp"
         android:contentDescription="@string/result"
         android:padding="2dp"
         app:layout_constraintEnd_toStartOf="@+id/textViewResult"
-        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cameraView" />
 
     <TextView
         android:id="@+id/textViewResult"
-        android:layout_width="257dp"
+        android:layout_width="222dp"
         android:layout_height="120dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginStart="19dp"
         android:layout_marginTop="20dp"
         android:fadeScrollbars="false"
         android:gravity="center"
@@ -48,25 +49,21 @@
         android:scrollbars="vertical"
         android:textColor="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageViewResult"
         app:layout_constraintTop_toBottomOf="@+id/cameraView" />
 
 
     <Button
         android:id="@+id/btnDetectObject"
-        style="@android:style/Widget.Holo.Button.Small"
-        android:layout_width="96dp"
-        android:layout_height="45dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:alpha="0.25"
-        android:background="@android:color/holo_blue_light"
-        android:elevation="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:alpha="0.33"
+        android:background="@drawable/round_btn"
         android:text="@string/detect_object"
         android:textAllCaps="false"
-        android:textColor="@android:color/black"
-        android:visibility="visible"
+        android:textColor="@color/colorPrimaryDark"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/cameraView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -75,54 +72,51 @@
 
     <Button
         android:id="@+id/btnList"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
         android:text="@string/car_list"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnChoose"
-        app:layout_constraintTop_toBottomOf="@+id/textViewResult"
-        app:layout_constraintVertical_bias="0.777" />
+        app:layout_constraintStart_toEndOf="@+id/btnChoose" />
 
     <Button
         android:id="@+id/btnSignOut"
-        android:layout_width="120dp"
+        android:layout_width="100dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/logou"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:text="@string/logout"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnChoose"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewResult"
-        app:layout_constraintVertical_bias="0.777" />
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/btnChoose"
-        android:layout_width="67dp"
+        android:layout_width="80dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/choose"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimaryDark"
-        android:textSize="8sp"
-        android:textStyle="italic"
+        android:textSize="10sp"
+        android:textStyle="bold|italic"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnList"
         app:layout_constraintStart_toEndOf="@+id/btnSignOut"
         app:layout_constraintTop_toBottomOf="@+id/textViewResult"
-        app:layout_constraintVertical_bias="0.75" />
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </android.support.constraint.ConstraintLayout>

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.paulinho.instantcarreco">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <application
         android:name=".App"
@@ -20,15 +22,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.SignupActivity"
+            android:label="@string/signup">
+            <!--<meta-data-->
+                <!--android:name="android.support.PARENT_ACTIVITY"-->
+                <!--android:value=".ui.LoginActivity">-->
+            <!--</meta-data>-->
+        </activity>
         <activity android:name=".ui.RecoActivity">
         </activity>
         <activity
-            android:name=".ui.SignupActivity"
-            android:label="@string/title_activity_signup">
+            android:name=".ui.CarListActivity"
+            android:label="@string/car_list">
             <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.paulinho.instantcarreco.ui.LoginActivity" />
-
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".ui.RecoActivity">
+            </meta-data>
         </activity>
     </application>
 

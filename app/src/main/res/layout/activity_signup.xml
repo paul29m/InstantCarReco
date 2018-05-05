@@ -13,7 +13,7 @@
     <LinearLayout
         android:layout_width="328dp"
         android:layout_height="384dp"
-        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
         android:orientation="vertical">
 
 
@@ -24,6 +24,14 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/welcome"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <EditText
+            android:id="@+id/editTextUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:hint="@string/user"
+            android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/editTextEmail"

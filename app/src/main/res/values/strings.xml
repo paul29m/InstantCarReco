@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">InstantCarReco</string>
     <string name="car_list">Car List</string>
-    <string name="detect_object">Detect Car</string>
+    <string name="detect_object">Detect</string>
     <string name="title_activity_signup">Sign up</string>
     <string name="registered">Already Registered? Login here</string>
     <string name="signup">Signup</string>
@@ -10,7 +10,8 @@
     <string name="welcome">Welcome to InstantCarReco</string>
     <string name="login">Login</string>
     <string name="new_account">Not have an account? Signup Here</string>
-    <string name="logou">Logout</string>
+    <string name="logout">Logout</string>
     <string name="result">result</string>
     <string name="choose">Choose IMG</string>
+    <string name="user">Name</string>
 </resources>

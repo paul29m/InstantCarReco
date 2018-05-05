@@ -18,14 +18,16 @@ public class Car {
     private String comment;
     private String model;
     private Date date;
+    private float confidence;
     private int rating;
     private String image;
 
     public Car(){}
 
-    public Car(String manufacture, String year, String comment, String model, String image) {
+    public Car(String manufacture, String year, String comment, String model, float confidence, String image) {
         this.manufacture = manufacture;
         this.year = year;
+        this.confidence = confidence;
         this.image = image;
         this.comment = comment;
         this.model = model;
@@ -82,6 +84,15 @@ public class Car {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    public float getConfidence() {
+        return confidence;
+    }
+
+    public void setConfidence(float confidence) {
+        this.confidence = confidence;
+    }
+
     public String getModel() {
         return model;
     }
@@ -120,7 +131,8 @@ public class Car {
         return "Car " +
                 "Manufacture: " + manufacture + '\n' +
                 "model: " + model + '\n' +
-                "year: " + year + '\n' ;
+                "year: " + year + '\n' +
+                "confidence: " + confidence + '\n' ;
 //                "date: " +getDateFormat()+ '\n' +
 //                "comment: " + comment;
     }

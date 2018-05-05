@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -123,7 +122,7 @@ public class RecoActivity extends AppCompatActivity {
         btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               //TODO
+                startActivity(new Intent(RecoActivity.this, CarListActivity.class));
             }
         });
 
@@ -258,11 +257,12 @@ public class RecoActivity extends AppCompatActivity {
         String image = AppUtils.encodeToBase64(bitmap);
         for (Recognition car : results) {
             List<String> elements = new ArrayList<>(Arrays.asList(car.getTitle().split(" ")));
-            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1), "No comments yet...",AppUtils.decodeModel(elements),image);
+            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1), "No comments yet...",AppUtils.decodeModel(elements), car.getConfidence(), image);
             result.add(foundCar);
         }
         return result;
     }
+
     private void initTensorFlowAndLoadModel() {
         executor.execute(new Runnable() {
             @Override
