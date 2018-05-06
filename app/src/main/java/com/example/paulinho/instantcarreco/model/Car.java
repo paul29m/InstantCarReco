@@ -19,30 +19,31 @@ public class Car {
     private String model;
     private Date date;
     private float confidence;
-    private int rating;
+    private float rating;
     private String image;
 
     public Car(){}
 
-    public Car(String manufacture, String year, String comment, String model, float confidence, String image) {
+    public Car(String manufacture, String year, String model, float confidence, String image) {
         this.manufacture = manufacture;
         this.year = year;
         this.confidence = confidence;
         this.image = image;
-        this.comment = comment;
+        this.comment = "No comments yet...";
         this.model = model;
         this.date = new Date();
         this.rating = 0;
     }
-    public Car(String id, String manufacture, String year, String comment, String model, String image) {
+    public Car(String id, String manufacture, String year, String model, String comment, float confidence, float rating, String image) {
         this.manufacture = manufacture;
         this.year = year;
         this.image = image;
         this.id = id;
         this.comment = comment;
         this.model = model;
+        this.confidence = confidence;
         this.date = new Date();
-        this.rating = 0;
+        this.rating = rating;
     }
 
     public String getId() {
@@ -116,11 +117,11 @@ public class Car {
         this.date = date;
     }
 
-    public int getRating() {
+    public float getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(float rating) {
         this.rating = rating;
     }
 
@@ -132,8 +133,8 @@ public class Car {
                 "Manufacture: " + manufacture + '\n' +
                 "model: " + model + '\n' +
                 "year: " + year + '\n' +
-                "confidence: " + confidence + '\n' ;
-//                "date: " +getDateFormat()+ '\n' +
+                "confidence: " + confidence + '\n' +
+                "date: " +getDateFormat()+ '\n';
 //                "comment: " + comment;
     }
 }

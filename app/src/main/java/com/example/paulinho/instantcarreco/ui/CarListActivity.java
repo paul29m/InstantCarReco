@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +59,7 @@ public class CarListActivity extends AppCompatActivity {
     DatabaseReference databaseCar;
     DatabaseReference databaseOwner;
     private FirebaseUser user;
-
+    private ImageView imageViewCar;
     protected GridView gridView;
     private ArrayList<Car> carList;
     private List<String> carId;
@@ -95,12 +97,11 @@ public class CarListActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int item) {
                         Car car = carList.get(position);
                         if (item == 0) {
-                            //details
                             showDialogDetails(CarListActivity.this, car);
                         }
                         else
                             if (item == 1) {
-                                    showDialogUpdate(CarListActivity.this, car);
+                            showDialogUpdate(CarListActivity.this, car);
 
                         } else
                             {
@@ -112,114 +113,14 @@ public class CarListActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
 
-    ImageView imageViewCar;
-    private void showDialogUpdate(Activity activity,Car car){
-
-        final Dialog dialog = new Dialog(activity);
-        dialog.setContentView(R.layout.update_car_activity);
-        dialog.setTitle("Update");
-        imageViewCar = (ImageView) dialog.findViewById(R.id.imageViewCar);
-        imageViewCar.setImageBitmap(AppUtils.decodeBase64(car.getImage()));
-        final EditText edtName = (EditText) dialog.findViewById(R.id.edtManufacture);
-        edtName.setText(car.getManufacture());
-        final EditText edtYear = (EditText) dialog.findViewById(R.id.edtYear);
-        edtYear.setText(car.getYear());
-        final EditText edtCom = (EditText) dialog.findViewById(R.id.edtCom);
-        edtCom.setText(car.getComment());
-        final EditText edtModel = (EditText) dialog.findViewById(R.id.edtModel);
-        edtModel.setText(car.getModel());
-        Button btnUpdate = (Button) dialog.findViewById(R.id.btnUpdate);
-        Button btnBack = (Button) dialog.findViewById(R.id.btnBack);
-        int width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.95);
-        int height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.9);
-        dialog.getWindow().setLayout(width, height);
-        dialog.show();
-
-        imageViewCar.setOnClickListener(new View.OnClickListener() {
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                // request photo library
-                ActivityCompat.requestPermissions(
-                        CarListActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        888
-                );
-            }
-        });
-
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    dialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Update successfully", Toast.LENGTH_SHORT).show();
-                }
-                catch (Exception error) {
-                    Log.e("Update error", error.getMessage());
-                    Toast.makeText(getApplicationContext(), "Please fill the spaces with good data", Toast.LENGTH_SHORT).show();
-                }
-                updateCarList();
-            }
-        });
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                showDialogDetails(CarListActivity.this, carList.get(i));
             }
         });
     }
-    private void showDialogDetails(Activity activity , final Car car){final Dialog dialog = new Dialog(activity);
-        dialog.setContentView(R.layout.show_car_activity);
-        dialog.setTitle("Details");
-        imageViewCar = (ImageView) dialog.findViewById(R.id.imageViewCar);
-        imageViewCar.setImageBitmap(AppUtils.decodeBase64(car.getImage()));
-        final TextView edtName = (TextView) dialog.findViewById(R.id.edtManufacture);
-        edtName.setText("Vehicle: " + car.getManufacture());
-        final TextView edtYear = (TextView) dialog.findViewById(R.id.edtYear);
-        edtYear.setText("Year: "+ car.getYear());
-        final TextView edtDesc = (TextView) dialog.findViewById(R.id.edtCom);
-        edtDesc.setText("Comment: "+car.getComment());
-        final TextView edtCat = (TextView) dialog.findViewById(R.id.edtModel);
-        edtCat.setText("Model: "+car.getModel());
-        Button btnShare = (Button) dialog.findViewById(R.id.btnShare);
-        // set width for dialog
-        int width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.95);
-        // set height for dialog
-        int height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
-        dialog.getWindow().setLayout(width, height);
-        dialog.show();
-
-        btnShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendEmail(car);
-            }
-        });
-    }
-
-    private void showDialogDelete(final Car car){
-        final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(CarListActivity.this);
-
-        dialogDelete.setTitle("Warning:");
-        dialogDelete.setMessage("Are you sure you want to delete this car?");
-        dialogDelete.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                updateCarList();
-            }
-        });
-
-        dialogDelete.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        dialogDelete.show();
-    }
-
 
 
 
@@ -255,6 +156,144 @@ public class CarListActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    private void updateRating(Car car) {
+        Car updatedCar = new Car(
+                car.getId(),
+                car.getManufacture(),
+                car.getYear(),
+                car.getModel(),
+                car.getComment(),
+                car.getConfidence(),
+                car.getRating(),
+                AppUtils.encodeToBase64(((BitmapDrawable)imageViewCar.getDrawable()).getBitmap()));
+        databaseCar.child(car.getId()).setValue(updatedCar);
+        updateCarList();
+    }
+
+    private void showDialogUpdate(Activity activity, final Car car){
+
+        final Dialog dialog = new Dialog(activity);
+        dialog.setContentView(R.layout.update_car_activity);
+        dialog.setTitle("Update");
+        imageViewCar = (ImageView) dialog.findViewById(R.id.imageViewCar);
+        imageViewCar.setImageBitmap(AppUtils.decodeBase64(car.getImage()));
+        final EditText edtMan = (EditText) dialog.findViewById(R.id.edtManufacture);
+        edtMan.setText(car.getManufacture());
+        final EditText edtYear = (EditText) dialog.findViewById(R.id.edtYear);
+        edtYear.setText(car.getYear());
+        final EditText edtCom = (EditText) dialog.findViewById(R.id.edtCom);
+        edtCom.setText(car.getComment());
+        final EditText edtModel = (EditText) dialog.findViewById(R.id.edtModel);
+        edtModel.setText(car.getModel());
+        Button btnUpdate = (Button) dialog.findViewById(R.id.btnUpdate);
+        Button btnBack = (Button) dialog.findViewById(R.id.btnBack);
+        int width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.95);
+        int height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.9);
+        dialog.getWindow().setLayout(width, height);
+        dialog.show();
+
+        imageViewCar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // request photo library
+                ActivityCompat.requestPermissions(
+                        CarListActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        888
+                );
+            }
+        });
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+
+                    Car updatedCar = new Car(
+                            car.getId(),
+                            edtMan.getText().toString().trim(),
+                            edtYear.getText().toString().trim(),
+                            edtModel.getText().toString().trim(),
+                            edtCom.getText().toString().trim(),
+                            car.getConfidence(),
+                            car.getRating(),
+                            AppUtils.encodeToBase64(((BitmapDrawable)imageViewCar.getDrawable()).getBitmap()));
+                    databaseCar.child(car.getId()).setValue(updatedCar);
+                    dialog.dismiss();
+                    Toast.makeText(getApplicationContext(), "Update successfully", Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception error) {
+                    Log.e("Update error", error.getMessage());
+                    Toast.makeText(getApplicationContext(), "Please fill the spaces with good data", Toast.LENGTH_SHORT).show();
+                }
+                updateCarList();
+            }
+        });
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+    private void showDialogDetails(Activity activity , final Car car){final Dialog dialog = new Dialog(activity);
+        dialog.setContentView(R.layout.show_car_activity);
+        dialog.setTitle("Details");
+        imageViewCar = (ImageView) dialog.findViewById(R.id.imageViewCar);
+        imageViewCar.setImageBitmap(AppUtils.decodeBase64(car.getImage()));
+        final TextView textMan = (TextView) dialog.findViewById(R.id.edtManufacture);
+        textMan.setText(car.toString());
+        final TextView textCom = (TextView) dialog.findViewById(R.id.edtCom);
+        textCom.setText("Comment: "+car.getComment());
+        final RatingBar ratingBar = (RatingBar) dialog.findViewById(R.id.ratingBar);
+        ratingBar.setRating(car.getRating());
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            public void onRatingChanged(RatingBar ratingBar, float rating,
+                                        boolean fromUser) {
+                ratingBar.setRating(rating);
+                car.setRating(rating);
+                updateRating(car);
+            }
+        });
+        Button btnShare = (Button) dialog.findViewById(R.id.btnShare);
+        // set width for dialog
+        int width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.95);
+        // set height for dialog
+        int height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
+        dialog.getWindow().setLayout(width, height);
+        dialog.show();
+
+        btnShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendEmail(car);
+            }
+        });
+    }
+
+    private void showDialogDelete(final Car car){
+        final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(CarListActivity.this);
+
+        dialogDelete.setTitle("Warning:");
+        dialogDelete.setMessage("Are you sure you want to delete this car?");
+        dialogDelete.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                databaseCar.child(car.getId()).removeValue();
+                updateCarList();
+            }
+        });
+
+        dialogDelete.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialogDelete.show();
     }
 
     private void updateCarList(){

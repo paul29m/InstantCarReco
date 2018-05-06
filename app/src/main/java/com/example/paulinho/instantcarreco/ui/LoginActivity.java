@@ -76,7 +76,9 @@ public class LoginActivity  extends AppCompatActivity implements View.OnClickLis
                         progressDialog.dismiss();
                         if(task.isSuccessful()){
                             finish();
-                            startActivity(new Intent(getApplicationContext(), RecoActivity.class));
+                            Intent intent = new Intent(getApplicationContext(), RecoActivity.class);
+                            intent.putExtra("PARENT","parent");
+                            startActivity(intent);
                         }
                     }
                 })

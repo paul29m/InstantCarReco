@@ -73,6 +73,7 @@ public class RecoActivity extends AppCompatActivity {
     DatabaseReference databaseOwner;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser user;
+    private Bitmap carBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +110,8 @@ public class RecoActivity extends AppCompatActivity {
 
             @Override
             public void onImage(CameraKitImage cameraKitImage) {
-                recognizeImg(cameraKitImage.getBitmap());
+                carBitmap = cameraKitImage.getBitmap();
+                recognizeImg();
 
             }
 
@@ -152,47 +154,6 @@ public class RecoActivity extends AppCompatActivity {
         });
 
     }
-
-    private void recognizeImg(Bitmap bitmap) {
-        bitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, false);
-        imageViewResult.setImageBitmap(bitmap);
-        final List<Recognition> results = classifier.recognizeImage(bitmap);
-        List<Car> resultCarList = convertToCarList(results,bitmap);
-        addCarsToDB(resultCarList);
-        textViewResult.setText(resultCarList.toString());
-    }
-
-    private void addCarsToDB(List<Car> resultCarList) {
-        for(Car car:resultCarList){
-            String carId = databaseCar.push().getKey();
-            car.setId(carId);
-            String Id = databaseOwner.push().getKey();
-            databaseCar.child(carId).setValue(car);
-            databaseOwner.child(Id).setValue(new Owner(Id,user.getUid(),carId));
-        }
-        Toast.makeText(this,"Car added",Toast.LENGTH_LONG).show();
-    }
-
-
-    private void logOut() {
-        firebaseAuth.signOut();
-        finish();
-        startActivity(new Intent(this, LoginActivity.class));
-    }
-
-    private void checkIfLoggedIn() {
-        try{
-            user = firebaseAuth.getCurrentUser();
-            if (user.getEmail() != null) {
-                Toast.makeText(this,"Welcome "+user.getEmail(),Toast.LENGTH_LONG).show();
-            }
-            initTensorFlowAndLoadModel();
-        }catch (NullPointerException e){
-            finish();
-            startActivity(new Intent(this, LoginActivity.class));
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -243,12 +204,62 @@ public class RecoActivity extends AppCompatActivity {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(uri);
 
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                recognizeImg(bitmap);
+                carBitmap= BitmapFactory.decodeStream(inputStream);
+                recognizeImg();
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void recognizeImg() {
+        imageViewResult.setImageBitmap(carBitmap);
+        Bitmap bitmap = Bitmap.createScaledBitmap(carBitmap, INPUT_SIZE, INPUT_SIZE, false);
+        final List<Recognition> results = classifier.recognizeImage(bitmap);
+        List<Car> resultCarList = convertToCarList(results,carBitmap);
+        addCarsToDB(resultCarList);
+        textViewResult.setText(resultCarList.toString());
+    }
+
+    private void addCarsToDB(List<Car> resultCarList) {
+        for(Car car:resultCarList){
+            String carId = databaseCar.push().getKey();
+            car.setId(carId);
+            String Id = databaseOwner.push().getKey();
+            databaseCar.child(carId).setValue(car);
+            databaseOwner.child(Id).setValue(new Owner(Id,user.getUid(),carId));
+        }
+        Toast.makeText(this,"Car added",Toast.LENGTH_LONG).show();
+    }
+
+
+    private void logOut() {
+        firebaseAuth.signOut();
+        finish();
+        startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    private void checkIfLoggedIn() {
+        try{
+            user = firebaseAuth.getCurrentUser();
+            if (user.getEmail() != null && checkParent()) {
+                Toast.makeText(this,"Welcome "+user.getEmail(),Toast.LENGTH_LONG).show();
+            }
+            initTensorFlowAndLoadModel();
+        }catch (NullPointerException e){
+            finish();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+    }
+
+    private boolean checkParent() {
+        try {
+            Intent intent = this.getIntent();
+            String parentActivity = (String) intent.getExtras().get("PARENT");
+            return parentActivity.equals("parent");
+        }catch (NullPointerException e ){
+            return false;
         }
     }
 
@@ -257,7 +268,7 @@ public class RecoActivity extends AppCompatActivity {
         String image = AppUtils.encodeToBase64(bitmap);
         for (Recognition car : results) {
             List<String> elements = new ArrayList<>(Arrays.asList(car.getTitle().split(" ")));
-            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1), "No comments yet...",AppUtils.decodeModel(elements), car.getConfidence(), image);
+            Car foundCar = new Car(elements.get(0), elements.get(elements.size()-1),AppUtils.decodeModel(elements), car.getConfidence(), image);
             result.add(foundCar);
         }
         return result;
