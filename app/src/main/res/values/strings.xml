@@ -14,4 +14,11 @@
     <string name="result">result</string>
     <string name="choose">Choose IMG</string>
     <string name="user">Name</string>
+    <string name="comment">Comment</string>
+    <string name="year">Year</string>
+    <string name="model">Model</string>
+    <string name="manufacture">Manufacture</string>
+    <string name="update">Update</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
 </resources>

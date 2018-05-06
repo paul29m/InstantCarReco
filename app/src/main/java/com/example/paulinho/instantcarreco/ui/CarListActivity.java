@@ -70,10 +70,9 @@ public class CarListActivity extends AppCompatActivity {
         gridView = (GridView) findViewById(R.id.gridView);
         carList = new ArrayList<>();
 
-
         mAuth = FirebaseAuth.getInstance();
         checkIfLoggedIn();
-        databaseCar = FirebaseDatabase.getInstance().getReference("cars");
+        databaseCar = FirebaseDatabase.getInstance().getReference("Cars");
         databaseCar.keepSynced(true);
         databaseOwner = FirebaseDatabase.getInstance().getReference("Owners");
         databaseOwner.keepSynced(true);
@@ -85,7 +84,7 @@ public class CarListActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                CharSequence[] items = {"Show details","Update", "Delete"};
+                CharSequence[] items = {"Show details","Update and comment", "Delete"};
                 AlertDialog.Builder dialog = new AlertDialog.Builder(CarListActivity.this);
 
                 dialog.setTitle("Choose an action");
@@ -167,7 +166,8 @@ public class CarListActivity extends AppCompatActivity {
         final EditText edtYear = (EditText) dialog.findViewById(R.id.edtYear);
         edtYear.setText(car.getYear());
         final EditText edtCom = (EditText) dialog.findViewById(R.id.edtCom);
-        edtCom.setText(car.getComment());
+        if (!car.getComment().equals("No comments yet..."))
+            edtCom.setText(car.getComment());
         final EditText edtModel = (EditText) dialog.findViewById(R.id.edtModel);
         edtModel.setText(car.getModel());
         Button btnUpdate = (Button) dialog.findViewById(R.id.btnUpdate);
@@ -202,6 +202,7 @@ public class CarListActivity extends AppCompatActivity {
                             edtCom.getText().toString().trim(),
                             car.getConfidence(),
                             car.getRating(),
+                            car.getDate(),
                             AppUtils.encodeToBase64(((BitmapDrawable)imageViewCar.getDrawable()).getBitmap()));
                     databaseCar.child(car.getId()).setValue(updatedCar);
                     dialog.dismiss();
@@ -240,18 +241,17 @@ public class CarListActivity extends AppCompatActivity {
                 updateRating(car);
             }
         });
-        Button btnShare = (Button) dialog.findViewById(R.id.btnShare);
+        Button btnDone = (Button) dialog.findViewById(R.id.btnDone);
         // set width for dialog
         int width = (int) (activity.getResources().getDisplayMetrics().widthPixels * 0.95);
         // set height for dialog
         int height = (int) (activity.getResources().getDisplayMetrics().heightPixels * 0.8);
         dialog.getWindow().setLayout(width, height);
         dialog.show();
-
-        btnShare.setOnClickListener(new View.OnClickListener() {
+        btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendEmail(car);
+                dialog.dismiss();
             }
         });
     }
@@ -300,16 +300,7 @@ public class CarListActivity extends AppCompatActivity {
     }
 
     private void updateRating(Car car) {
-        Car updatedCar = new Car(
-                car.getId(),
-                car.getManufacture(),
-                car.getYear(),
-                car.getModel(),
-                car.getComment(),
-                car.getConfidence(),
-                car.getRating(),
-                AppUtils.encodeToBase64(((BitmapDrawable)imageViewCar.getDrawable()).getBitmap()));
-        databaseCar.child(car.getId()).setValue(updatedCar);
+        databaseCar.child(car.getId()).setValue(car);
         updateCarList();
     }
 
@@ -358,21 +349,6 @@ public class CarListActivity extends AppCompatActivity {
         }catch (NullPointerException e){
             finish();
             startActivity(new Intent(this, LoginActivity.class));
-        }
-    }
-
-    private void sendEmail(Car car){
-
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("text/plain");
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Found this awesome car"+car.getManufacture());
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "I found it on Wanted Cars app:\n "+car.toString());
-        try {
-            startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-            finish();
-        } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(CarListActivity.this, "There is no email client installed.", Toast.LENGTH_SHORT).show();
         }
     }
 }

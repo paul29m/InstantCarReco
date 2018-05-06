@@ -34,7 +34,7 @@ public class Car {
         this.date = new Date();
         this.rating = 0;
     }
-    public Car(String id, String manufacture, String year, String model, String comment, float confidence, float rating, String image) {
+    public Car(String id, String manufacture, String year, String model, String comment, float confidence, float rating,Date date, String image) {
         this.manufacture = manufacture;
         this.year = year;
         this.image = image;
@@ -42,7 +42,7 @@ public class Car {
         this.comment = comment;
         this.model = model;
         this.confidence = confidence;
-        this.date = new Date();
+        this.date = date;
         this.rating = rating;
     }
 
@@ -134,7 +134,7 @@ public class Car {
                 "model: " + model + '\n' +
                 "year: " + year + '\n' +
                 "confidence: " + confidence + '\n' +
-                "date: " +getDateFormat()+ '\n';
+                "date found: " +getDateFormat()+ '\n';
 //                "comment: " + comment;
     }
 }

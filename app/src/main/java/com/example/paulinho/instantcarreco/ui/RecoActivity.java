@@ -91,7 +91,7 @@ public class RecoActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
         checkIfLoggedIn();
-        databaseCar = FirebaseDatabase.getInstance().getReference("cars");
+        databaseCar = FirebaseDatabase.getInstance().getReference("Cars");
         databaseCar.keepSynced(true);
         databaseOwner = FirebaseDatabase.getInstance().getReference("Owners");
         databaseOwner.keepSynced(true);
@@ -215,11 +215,11 @@ public class RecoActivity extends AppCompatActivity {
 
     private void recognizeImg() {
         imageViewResult.setImageBitmap(carBitmap);
-        Bitmap bitmap = Bitmap.createScaledBitmap(carBitmap, INPUT_SIZE, INPUT_SIZE, false);
-        final List<Recognition> results = classifier.recognizeImage(bitmap);
+        carBitmap = Bitmap.createScaledBitmap(carBitmap, INPUT_SIZE, INPUT_SIZE, false);
+        final List<Recognition> results = classifier.recognizeImage(carBitmap);
         List<Car> resultCarList = convertToCarList(results,carBitmap);
-        addCarsToDB(resultCarList);
         textViewResult.setText(resultCarList.toString());
+        addCarsToDB(resultCarList);
     }
 
     private void addCarsToDB(List<Car> resultCarList) {
