@@ -3,15 +3,12 @@ package com.example.paulinho.instantcarreco.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -41,11 +38,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -158,21 +155,6 @@ public class CarListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    private void updateRating(Car car) {
-        Car updatedCar = new Car(
-                car.getId(),
-                car.getManufacture(),
-                car.getYear(),
-                car.getModel(),
-                car.getComment(),
-                car.getConfidence(),
-                car.getRating(),
-                AppUtils.encodeToBase64(((BitmapDrawable)imageViewCar.getDrawable()).getBitmap()));
-        databaseCar.child(car.getId()).setValue(updatedCar);
-        updateCarList();
-    }
-
     private void showDialogUpdate(Activity activity, final Car car){
 
         final Dialog dialog = new Dialog(activity);
@@ -282,7 +264,7 @@ public class CarListActivity extends AppCompatActivity {
         dialogDelete.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                databaseCar.child(car.getId()).removeValue();
+                removeCar(car.getId());
                 updateCarList();
             }
         });
@@ -296,6 +278,41 @@ public class CarListActivity extends AppCompatActivity {
         dialogDelete.show();
     }
 
+    private void removeCar(String id) {
+        databaseCar.child(id).removeValue();
+        Query query =databaseOwner.orderByChild("carId").equalTo(id);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    for (DataSnapshot owner : dataSnapshot.getChildren()) {
+                        String id = owner.getKey();
+                        databaseOwner.child(id).removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void updateRating(Car car) {
+        Car updatedCar = new Car(
+                car.getId(),
+                car.getManufacture(),
+                car.getYear(),
+                car.getModel(),
+                car.getComment(),
+                car.getConfidence(),
+                car.getRating(),
+                AppUtils.encodeToBase64(((BitmapDrawable)imageViewCar.getDrawable()).getBitmap()));
+        databaseCar.child(car.getId()).setValue(updatedCar);
+        updateCarList();
+    }
+
     private void updateCarList(){
         databaseOwner.addValueEventListener(new ValueEventListener() {
 
@@ -303,7 +320,6 @@ public class CarListActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                 Owner owner = postSnapshot.getValue(Owner.class);
-
                 if(user.getUid().equals(owner.getUserId()))
                     carId.add(owner.getCarId());
                 }
@@ -334,11 +350,6 @@ public class CarListActivity extends AppCompatActivity {
         });
     }
 
-
-
-    private void AddToFirebase(final Car car) {
-
-    }
     private void checkIfLoggedIn() {
         try{
             user = mAuth.getCurrentUser();
