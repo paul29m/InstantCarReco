@@ -9,7 +9,7 @@
     <string name="password">Password</string>
     <string name="welcome">Welcome to InstantCarReco</string>
     <string name="login">Login</string>
-    <string name="new_account">Not have an account? Signup Here</string>
+    <string name="new_account">Not have an account? Signup Here \n or press the button below to sign in with Google</string>
     <string name="logout">Logout</string>
     <string name="result">result</string>
     <string name="choose">Choose IMG</string>
