@@ -13,6 +13,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.wonderkiln.camerakit.CameraKit;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
@@ -52,6 +55,7 @@ import java.util.concurrent.Executors;
 public class RecoActivity extends AppCompatActivity {
 
     private static final String TAG = "RecoActivity";
+    private static boolean SAVE = true;
     private static final int INPUT_SIZE = 224;
     private static final int IMAGE_MEAN = 128;
     private static final float IMAGE_STD = 128;
@@ -218,21 +222,37 @@ public class RecoActivity extends AppCompatActivity {
         carBitmap = Bitmap.createScaledBitmap(carBitmap, INPUT_SIZE, INPUT_SIZE, false);
         final List<Recognition> results = classifier.recognizeImage(carBitmap);
         List<Car> resultCarList = convertToCarList(results,carBitmap);
-        textViewResult.setText(resultCarList.toString());
+        textViewResult.setText(showResult(resultCarList));
         addCarsToDB(resultCarList);
     }
 
+    private String showResult(List<Car> resultCarList) {
+        StringBuilder result = new StringBuilder("Best match: \n");
+        for (Car car : resultCarList) result.append(car.toString()+"\n");
+        return result.toString();
+    }
+
     private void addCarsToDB(List<Car> resultCarList) {
-        for(Car car:resultCarList){
+        if (SAVE) {
+            for (Car car : resultCarList) {
+                String carId = databaseCar.push().getKey();
+                car.setId(carId);
+                String Id = databaseOwner.push().getKey();
+                databaseCar.child(carId).setValue(car);
+                databaseOwner.child(Id).setValue(new Owner(Id, user.getUid(), carId));
+            }
+            Toast.makeText(this, "Cars added to your list", Toast.LENGTH_LONG).show();
+        }
+        else {
             String carId = databaseCar.push().getKey();
+            Car car = resultCarList.get(0);
             car.setId(carId);
             String Id = databaseOwner.push().getKey();
             databaseCar.child(carId).setValue(car);
-            databaseOwner.child(Id).setValue(new Owner(Id,user.getUid(),carId));
+            databaseOwner.child(Id).setValue(new Owner(Id, user.getUid(), carId));
+            Toast.makeText(this, "Best confidence car added to your list", Toast.LENGTH_LONG).show();
         }
-        Toast.makeText(this,"Car added",Toast.LENGTH_LONG).show();
     }
-
 
     private void logOut() {
         firebaseAuth.signOut();
@@ -304,4 +324,39 @@ public class RecoActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(item.isChecked())
+            item.setChecked(false);
+        else
+            item.setChecked(true);
+
+        switch (id){
+            case R.id.checkable_flash:
+                if (item.isChecked())
+                    cameraView.setFlash(CameraKit.Constants.FLASH_ON);
+                else
+                    cameraView.setFlash(CameraKit.Constants.FLASH_OFF);
+                break;
+
+            case R.id.checkable_save:
+                if (item.isChecked())
+                    SAVE = true;
+                else
+                    SAVE = false;
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

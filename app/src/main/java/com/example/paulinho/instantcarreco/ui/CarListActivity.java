@@ -59,7 +59,6 @@ public class CarListActivity extends AppCompatActivity {
     private ImageView imageViewCar;
     protected GridView gridView;
     private ArrayList<Car> carList;
-    private List<String> carId;
     private CarListAdapter adapter;
 
     @Override
@@ -76,7 +75,6 @@ public class CarListActivity extends AppCompatActivity {
         databaseCar.keepSynced(true);
         databaseOwner = FirebaseDatabase.getInstance().getReference("Owners");
         databaseOwner.keepSynced(true);
-        carId = new ArrayList<>();
         carList = new ArrayList<>();
         updateCarList();
 
@@ -305,36 +303,38 @@ public class CarListActivity extends AppCompatActivity {
     }
 
     private void updateCarList(){
-        databaseOwner.addValueEventListener(new ValueEventListener() {
-
+        Query ownerQuery = databaseOwner.orderByChild("userId").equalTo(user.getUid());
+        carList.clear();
+        ownerQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                Owner owner = postSnapshot.getValue(Owner.class);
-                if(user.getUid().equals(owner.getUserId()))
-                    carId.add(owner.getCarId());
+                if(dataSnapshot.exists()) {
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        Owner owner = postSnapshot.getValue(Owner.class);
+                        getCarFromDB(owner.getCarId());
+                    }
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
+    }
 
-        databaseCar.addValueEventListener(new ValueEventListener() {
+    private void getCarFromDB(String carId) {
+        Query carQuery = databaseCar.orderByChild("id").equalTo(carId);
+        carQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                carList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Car car = postSnapshot.getValue(Car.class);
-                    if (carId.contains(car.getId())) {
-                        carList.add(car);
-                    }
+                    carList.add(car);
                     adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
                     gridView.setAdapter(adapter);
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }

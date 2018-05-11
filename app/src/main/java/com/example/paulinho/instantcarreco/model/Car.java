@@ -130,7 +130,7 @@ public class Car {
     public String toString() {
 
         return "Car " +
-                "Manufacture: " + manufacture + '\n' +
+                "manufacture: " + manufacture + '\n' +
                 "model: " + model + '\n' +
                 "year: " + year + '\n' +
                 "confidence: " + confidence + '\n' +
