@@ -21,4 +21,10 @@
     <string name="update">Update</string>
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
+    <string name="order_by_date">Order by date</string>
+    <string name="order_by_rating">Order by rating</string>
+    <string name="order_by_manufacture">Order by manufacture</string>
+    <string name="flash">FLASH</string>
+    <string name="save_all_results">Save all results</string>
+    <string name="order_by_production_year">Order by production year</string>
 </resources>

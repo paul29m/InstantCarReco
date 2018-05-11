@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.RecoActivity">
+        <group
+            android:id="@+id/noncheckable_group"
+            android:checkableBehavior="none">
+            <item
+                android:id="@+id/date_order"
+                android:title="@string/order_by_date" />
+            <item
+                android:id="@+id/rating_order"
+                android:title="@string/order_by_rating" />
+            <item
+                android:id="@+id/man_order"
+                android:title="@string/order_by_manufacture" />
+            <item
+                android:id="@+id/year_order"
+                android:title="@string/order_by_production_year" />
+        </group>
+    </menu>

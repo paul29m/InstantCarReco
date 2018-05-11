@@ -17,6 +17,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -40,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.wonderkiln.camerakit.CameraKit;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -75,7 +78,7 @@ public class CarListActivity extends AppCompatActivity {
         databaseCar.keepSynced(true);
         databaseOwner = FirebaseDatabase.getInstance().getReference("Owners");
         databaseOwner.keepSynced(true);
-        carList = new ArrayList<>();
+
         updateCarList();
 
         gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -324,13 +327,13 @@ public class CarListActivity extends AppCompatActivity {
     }
 
     private void getCarFromDB(String carId) {
-        Query carQuery = databaseCar.orderByChild("id").equalTo(carId);
+        Query carQuery = databaseCar.orderByKey().equalTo(carId);
         carQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Car car = postSnapshot.getValue(Car.class);
-                    carList.add(car);
+                    addCarToList(car);
                     adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
                     gridView.setAdapter(adapter);
                 }
@@ -339,6 +342,13 @@ public class CarListActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
+    }
+
+    private void addCarToList(Car car) {
+        for (Car car1 : carList)
+            if (car1.getId().equals(car.getId()))
+                return;
+        carList.add(car);
     }
 
     private void checkIfLoggedIn() {
@@ -350,5 +360,34 @@ public class CarListActivity extends AppCompatActivity {
             finish();
             startActivity(new Intent(this, LoginActivity.class));
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.order_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.date_order:
+                break;
+
+            case R.id.rating_order:
+                break;
+
+            case R.id.man_order:
+                break;
+
+            case R.id.year_order:
+                break;
+
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

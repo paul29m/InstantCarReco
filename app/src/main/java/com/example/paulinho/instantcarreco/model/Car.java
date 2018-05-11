@@ -1,5 +1,7 @@
 package com.example.paulinho.instantcarreco.model;
 
+import android.annotation.SuppressLint;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -109,7 +111,7 @@ public class Car {
 
     public String getDateFormat(){
         DateFormat dateFormat;
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        dateFormat = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
         return dateFormat.format(date);
     }
 

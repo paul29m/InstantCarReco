@@ -7,10 +7,10 @@
             android:checkableBehavior="all">
             <item
                 android:id="@+id/checkable_flash"
-                android:title="FLASH" />
+                android:title="@string/flash" />
             <item
                 android:id="@+id/checkable_save"
                 android:checked="true"
-                android:title="Save all results" />
+                android:title="@string/save_all_results" />
         </group>
     </menu>

@@ -219,8 +219,10 @@ public class RecoActivity extends AppCompatActivity {
 
     private void recognizeImg() {
         imageViewResult.setImageBitmap(carBitmap);
-        carBitmap = Bitmap.createScaledBitmap(carBitmap, INPUT_SIZE, INPUT_SIZE, false);
-        final List<Recognition> results = classifier.recognizeImage(carBitmap);
+        Bitmap bitmap = Bitmap.createScaledBitmap(carBitmap, INPUT_SIZE, INPUT_SIZE, false);
+        final List<Recognition> results = classifier.recognizeImage(bitmap);
+        int nh = (int) ( carBitmap.getHeight() * (512.0 / carBitmap.getWidth()) );
+        carBitmap = Bitmap.createScaledBitmap(carBitmap, 512, nh, true);
         List<Car> resultCarList = convertToCarList(results,carBitmap);
         textViewResult.setText(showResult(resultCarList));
         addCarsToDB(resultCarList);
