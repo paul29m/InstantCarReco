@@ -1,7 +1,10 @@
 package com.example.paulinho.instantcarreco.ui;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -63,28 +66,38 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             return;
         }
 
-        if(TextUtils.isEmpty(password)){
+        if(password.length()<4){
             Toast.makeText(this,"Please enter password",Toast.LENGTH_LONG).show();
             return;
         }
 
         progressDialog.setMessage("Registering Please Wait...");
         progressDialog.show();
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+        if(isOnline()) {
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        if(task.isSuccessful()){
-                            finish();
-                            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                        }else{
-                            Toast.makeText(SignupActivity.this,"Registration Error",Toast.LENGTH_LONG).show();
+                            if (task.isSuccessful()) {
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                            } else {
+                                Toast.makeText(SignupActivity.this, "Registration Error", Toast.LENGTH_LONG).show();
+                            }
+                            progressDialog.dismiss();
                         }
-                        progressDialog.dismiss();
-                    }
-                });
+                    });
+        }else{
+            progressDialog.dismiss();
+            Toast.makeText(SignupActivity.this, "You are not connected to Internet", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    protected boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @Override

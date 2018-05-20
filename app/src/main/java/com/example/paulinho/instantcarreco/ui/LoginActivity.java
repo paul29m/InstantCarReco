@@ -1,10 +1,12 @@
 package com.example.paulinho.instantcarreco.ui;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,13 +30,12 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 
 public class LoginActivity  extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String TAG = "GoogleActivity";
+    private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
 
     private Button buttonSignIn;
@@ -97,11 +98,12 @@ public class LoginActivity  extends AppCompatActivity implements View.OnClickLis
             return;
         }
 
-        if(TextUtils.isEmpty(password)){
+        if(password.length()<4){
             Toast.makeText(this,"Please enter password",Toast.LENGTH_LONG).show();
             return;
         }
         progressDialog.show();
+        if(isOnline()){
         firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -120,10 +122,14 @@ public class LoginActivity  extends AppCompatActivity implements View.OnClickLis
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof FirebaseAuthException) {
                     Toast.makeText(getApplicationContext(),((FirebaseAuthException) e).getErrorCode(),Toast.LENGTH_LONG).show();
+                    Log.w(TAG, "User sign in failed", e);
                 }
             }
         });
-
+        }else{
+            progressDialog.dismiss();
+            Toast.makeText(LoginActivity.this, "You are not connected to Internet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -142,31 +148,36 @@ public class LoginActivity  extends AppCompatActivity implements View.OnClickLis
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         progressDialog.show();
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.dismiss();
-                        if (task.isSuccessful()) {
-                            Intent intent = new Intent(getApplicationContext(), RecoActivity.class);
-                            intent.putExtra("PARENT","parent");
-                            startActivity(intent);
+        if(isOnline()) {
+            AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+            firebaseAuth.signInWithCredential(credential)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            progressDialog.dismiss();
+                            if (task.isSuccessful()) {
+                                Intent intent = new Intent(getApplicationContext(), RecoActivity.class);
+                                intent.putExtra("PARENT", "parent");
+                                startActivity(intent);
 
-                        } else {
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            } else {
+                                Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            }
                         }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof FirebaseAuthException) {
-                            Toast.makeText(getApplicationContext(), ((FirebaseAuthException) e).getErrorCode(), Toast.LENGTH_LONG).show();
-                            Log.w(TAG, "signInWithCredential:failure", e );
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            if (e instanceof FirebaseAuthException) {
+                                Toast.makeText(getApplicationContext(), ((FirebaseAuthException) e).getErrorCode(), Toast.LENGTH_LONG).show();
+                                Log.w(TAG, "signInWithCredential:failure", e);
+                            }
                         }
-                    }
-                });
+                    });
+        }else{
+            progressDialog.dismiss();
+            Toast.makeText(LoginActivity.this, "You are not connected to Internet", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void signInWithGoogle() {
@@ -174,6 +185,15 @@ public class LoginActivity  extends AppCompatActivity implements View.OnClickLis
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    protected boolean isOnline() {
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public void onClick(View view) {

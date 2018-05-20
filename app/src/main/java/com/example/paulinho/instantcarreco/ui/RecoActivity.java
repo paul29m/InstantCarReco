@@ -3,6 +3,7 @@
 package com.example.paulinho.instantcarreco.ui;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,8 +12,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -142,7 +145,7 @@ public class RecoActivity extends AppCompatActivity {
         btnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               logOut();
+               showDialogDelete();
             }
         });
         
@@ -212,7 +215,7 @@ public class RecoActivity extends AppCompatActivity {
                 recognizeImg();
 
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                Log.w(TAG, "Choose image failed", e);
             }
         }
     }
@@ -243,7 +246,7 @@ public class RecoActivity extends AppCompatActivity {
                 databaseCar.child(carId).setValue(car);
                 databaseOwner.child(Id).setValue(new Owner(Id, user.getUid(), carId));
             }
-            Toast.makeText(this, "Cars added to your list", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Result added to your list", Toast.LENGTH_LONG).show();
         }
         else {
             String carId = databaseCar.push().getKey();
@@ -256,11 +259,6 @@ public class RecoActivity extends AppCompatActivity {
         }
     }
 
-    private void logOut() {
-        firebaseAuth.signOut();
-        finish();
-        startActivity(new Intent(this, LoginActivity.class));
-    }
 
     private void checkIfLoggedIn() {
         try{
@@ -273,6 +271,31 @@ public class RecoActivity extends AppCompatActivity {
             finish();
             startActivity(new Intent(this, LoginActivity.class));
         }
+    }
+
+    private void showDialogDelete(){
+        final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(RecoActivity.this);
+        dialogDelete.setTitle("Warning:");
+        dialogDelete.setMessage("If no internet connection is available you may not be able to use the app! Are you sure you want to logout?");
+        dialogDelete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                logOut();
+            }
+        });
+        dialogDelete.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialogDelete.show();
+    }
+
+    private void logOut() {
+        firebaseAuth.signOut();
+        finish();
+        startActivity(new Intent(this, LoginActivity.class));
     }
 
     private boolean checkParent() {
@@ -326,6 +349,7 @@ public class RecoActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.settings_menu, menu);
