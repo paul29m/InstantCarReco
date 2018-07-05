@@ -7,4 +7,4 @@ bmw 5 series sedan 2012
 bmw m3 coupe 2012
 bmw m5 sedan 2010
 bmw m6 convertible 2010
-bmw x3 suv 2012
+mercedes-benz c class sedan 2013

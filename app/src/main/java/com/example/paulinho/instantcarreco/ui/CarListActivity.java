@@ -10,9 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -47,6 +49,9 @@ import com.wonderkiln.camerakit.CameraKit;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -98,11 +103,12 @@ public class CarListActivity extends AppCompatActivity {
                         }
                         else
                             if (item == 1) {
-                            showDialogUpdate(CarListActivity.this, car);
+                             showDialogUpdate(CarListActivity.this, car);
 
                         } else
                             {
                                 showDialogDelete(car);
+
                         }
                     }
                 });
@@ -267,6 +273,7 @@ public class CarListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 removeCar(car.getId());
                 updateCarList();
+
             }
         });
 
@@ -335,7 +342,9 @@ public class CarListActivity extends AppCompatActivity {
                     Car car = postSnapshot.getValue(Car.class);
                     addCarToList(car);
                     adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
+                    adapter.notifyDataSetChanged();
                     gridView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 }
             }
             @Override
@@ -368,26 +377,87 @@ public class CarListActivity extends AppCompatActivity {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         switch (id){
             case R.id.date_order:
+                orderByDate();
                 break;
 
             case R.id.rating_order:
+                orderByRating();
                 break;
 
             case R.id.man_order:
+                orderByManufacture();
                 break;
 
             case R.id.year_order:
+                orderByYear();
                 break;
 
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void orderByYear() {
+        Collections.sort(carList,new Comparator<Car>() {
+            @Override
+            public int compare(Car car1, Car car2) {
+                return car2.getYear().compareTo(car1.getYear());
+            }
+        });
+        adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
+        gridView.invalidateViews();
+        gridView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void orderByManufacture() {
+        Collections.sort(carList,new Comparator<Car>() {
+            @Override
+            public int compare(Car car1, Car car2) {
+                return car1.getManufacture().compareToIgnoreCase(car2.getManufacture());
+            }
+        });
+        adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
+        gridView.invalidateViews();
+        gridView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void orderByRating() {
+        Collections.sort(carList,new Comparator<Car>() {
+            @Override
+            public int compare(Car car1, Car car2) {
+                return Float.toString(car2.getRating()).compareTo(Float.toString(car1.getRating()));
+            }
+        });
+
+        adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
+        gridView.invalidateViews();
+        gridView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void orderByDate() {
+        Collections.sort(carList,new Comparator<Car>() {
+            @Override
+            public int compare(Car car1, Car car2) {
+                return car1.getDate().compareTo(car2.getDate());
+            }});
+        adapter = new CarListAdapter(CarListActivity.this, R.layout.car_items, carList);
+        gridView.invalidateViews();
+        gridView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 }
